@@ -7,7 +7,7 @@ import { UsersService } from '../users/users.service';
 
 
 export const cookieExtractor = (req: Request): string | null => {
-  return req?.cookies?.Access || null; 
+  return req?.cookies?.access || null; 
 };
 
 @Injectable()
@@ -17,13 +17,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         private readonly usersService: UsersService,
     ) {
         super({
-        jwtFromRequest: cookieExtractor,
-        ignoreExpiration: false,
-        secretOrKey: configService.get<string>('jwt.access.secret'), 
+            jwtFromRequest: cookieExtractor,
+            ignoreExpiration: false,
+            secretOrKey: configService.get<string>('jwt.access.secret'), 
         });
     }
 
     async validate(payload: any) {
+
         const user = await this.usersService.findById(payload.sub);
         if (!user) {
             throw new UnauthorizedException("access token expired");
