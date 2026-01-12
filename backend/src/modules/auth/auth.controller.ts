@@ -85,7 +85,7 @@ export class AuthController {
         const user = await this.usersService.findByEmail(payload.email);
         if (!user) throw new UnauthorizedException('User not found');
 
-        const tokens = this.authService.generateTokens(user);
+        const tokens = await this.authService.generateTokens(user);
 
         res.cookie('access', tokens.access_token, {
             httpOnly: true,

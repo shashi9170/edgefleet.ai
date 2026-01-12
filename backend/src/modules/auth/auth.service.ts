@@ -1,9 +1,16 @@
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
 import { UsersService } from '../users/users.service';
 import { PasswordService } from './password.service';
 import { RegisterDto } from './dto/register.dto';
+
+import { RefreshToken, RefreshTokenDocument } from 'src/database/schemas/token.schema';
+
+
 
 @Injectable()
 export class AuthService {
@@ -12,6 +19,10 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly passwordService: PasswordService,
         private readonly configService: ConfigService,
+
+
+        @InjectModel(RefreshToken.name)
+        private readonly refreshTokenModel: Model<RefreshTokenDocument>,
     ) {}
 
     // ---- Register ----
@@ -37,12 +48,12 @@ export class AuthService {
     }
 
     async login(user: any) {
-        return this.generateTokens(user);
+        return await this.generateTokens(user);
     }
 
 
     // ---- Token Generation ----
-    generateTokens(user: any) {
+    async generateTokens(user: any) {
         const payload = { sub: user._id.toString(), email: user.email };
       
         const access_token = this.jwtService.sign(payload, {
@@ -56,7 +67,58 @@ export class AuthService {
             expiresIn: this.configService.get('jwt.refresh.signOptions.expiresIn'),
             algorithm: this.configService.get('jwt.refresh.signOptions.algorithm'),
         });
-      
+
+
+        // Calculate refresh token expiry date
+        const refreshExpiresIn = this.configService.get<string>('jwt.refresh.signOptions.expiresIn', '30d');
+          
+        const expiresAt = new Date(
+            Date.now() + this.parseExpiresIn(refreshExpiresIn),
+        );
+
+        await this.refreshTokenModel.findOneAndUpdate(
+            { userId: user._id },
+            { token: refresh_token, expiresAt, isRevoked: false, },
+            { upsert: true, new: true, }
+        );
+          
+
         return { access_token, refresh_token };
+    }  
+    
+    
+    private parseExpiresIn(expiresIn: string | number): number {
+        // number → seconds
+        if (typeof expiresIn === 'number') {
+          return expiresIn * 1000;
+        }
+      
+        const value = expiresIn.trim();
+      
+        // numeric string → seconds
+        if (/^\d+$/.test(value)) {
+          return Number(value) * 1000;
+        }
+      
+        // string with unit
+        const match = value.match(/^(\d+)(s|m|h|d)$/);
+      
+        if (!match) {
+          throw new Error(
+            `Invalid expiresIn format: "${expiresIn}". Use formats like "15m", "1h", "7d"`,
+          );
+        }
+      
+        const amount = Number(match[1]);
+        const unit = match[2];
+      
+        const multipliers = {
+          s: 1000,
+          m: 60 * 1000,
+          h: 60 * 60 * 1000,
+          d: 24 * 60 * 60 * 1000,
+        };
+      
+        return amount * multipliers[unit];
     }      
 }

@@ -10,7 +10,7 @@ export class RefreshToken implements IRefreshToken {
 
   id?: string;
 
-  @Prop({  type: Types.ObjectId, ref: 'User', required: true, })
+  @Prop({  type: Types.ObjectId, ref: 'User', required: true, unique: true })
   userId: string;
 
   @Prop({ required: true, unique: true, index: true, })
