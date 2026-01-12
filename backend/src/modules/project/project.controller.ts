@@ -15,7 +15,8 @@ export class ProjectController {
 
     @Post()
     async create(@Req() req: RequestWithUser, @Body() createDto: CreateProjectDto): Promise<IApiResponse> {
-        const project = await this.projectService.create(req.user['sub'], createDto);
+
+        const project = await this.projectService.create(req.user.id, createDto);
         return {
             status: HttpStatus.CREATED,
             success: true,
@@ -26,7 +27,8 @@ export class ProjectController {
 
     @Get()
     async findAll(@Req() req: RequestWithUser): Promise<IApiResponse> {
-        const projects = await this.projectService.findAll(req.user['sub']);
+
+        const projects = await this.projectService.findAll(req.user.id);
         return {
             status: HttpStatus.OK,
             success: true,
@@ -37,7 +39,7 @@ export class ProjectController {
 
     @Get(':id')
     async findOne(@Req() req: RequestWithUser, @Param('id') id: string): Promise<IApiResponse> {
-        const project = await this.projectService.findOne(req.user['sub'], id);
+        const project = await this.projectService.findOne(req.user.id, id);
         return {
             status: HttpStatus.OK,
             success: true,
@@ -48,7 +50,7 @@ export class ProjectController {
 
     @Patch(':id')
     async update(@Req() req: RequestWithUser, @Param('id') id: string, @Body() updateDto: UpdateProjectDto ): Promise<IApiResponse> {
-        const project = await this.projectService.update(req.user['sub'], id, updateDto);
+        const project = await this.projectService.update(req.user.id, id, updateDto);
         return {
             status: HttpStatus.OK,
             success: true,
@@ -59,7 +61,7 @@ export class ProjectController {
 
     @Delete(':id')
     async remove(@Req() req: RequestWithUser, @Param('id') id: string): Promise<IApiResponse> {
-        await this.projectService.remove(req.user['sub'], id);
+        await this.projectService.remove(req.user.id, id);
 
         return {
             status: HttpStatus.OK,
