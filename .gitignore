@@ -12,10 +12,6 @@ frontend/.env.development.local
 frontend/.env.production.local
 frontend/.env.test.local
 
-# Allow example files
-!backend/.env.example
-!frontend/.env.example
-
 
 # Node modules
 backend/node_modules
