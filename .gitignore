@@ -1,0 +1,35 @@
+# Backend env
+backend/.env
+backend/.env.local
+backend/.env.development.local
+backend/.env.production.local
+backend/.env.test.local
+
+# Frontend env
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+frontend/.env.test.local
+
+# Allow example files
+!backend/.env.example
+!frontend/.env.example
+
+
+# Node modules
+backend/node_modules
+frontend/node_modules
+
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# Build / Dist
+backend/dist
+frontend/dist
