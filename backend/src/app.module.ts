@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { configLoaders } from "src/config";
+
+import { AppService } from './app.service';
+import { AppController } from './app.controller';
  
 import { DatabaseModule } from './database/database.module';
-import { UsersController } from './modules/users/users.controller';
-import { AuthController } from './modules/auth/auth.controller';
-import { AppController } from './app.controller';
+import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -16,8 +18,10 @@ import { AppController } from './app.controller';
     }),
 
     DatabaseModule,
+    // UsersModule,
+    // AuthModule
   ],
-  controllers: [AppController, UsersController, AuthController],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
