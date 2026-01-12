@@ -18,8 +18,8 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
 
     DatabaseModule,
-    // UsersModule,
-    // AuthModule
+    UsersModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

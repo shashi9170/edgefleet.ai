@@ -17,17 +17,23 @@ import { UsersModule } from '../users/users.module';
         imports: [ConfigModule],
         inject: [ConfigService],
 
-        useFactory: async (configService: ConfigService) => ({
-            secret: configService.get<string>('jwt.secret'),
-            signOptions: configService.get('jwt.signOptions'),
-        }),
+        useFactory: async (configService: ConfigService) => {
+          const jwtConfig = configService.get('jwt'); 
+      
+          return {
+            secret: jwtConfig.access.secret, 
+            signOptions: {
+              expiresIn: jwtConfig.access.signOptions.expiresIn,
+              algorithm: jwtConfig.access.signOptions.algorithm,
+            },
+        };
+      },
     }),
-
   ],
 
-  providers: [AuthService, JwtStrategy, PasswordService],
+  providers: [AuthService, PasswordService, JwtStrategy],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService, JwtStrategy],
 })
 
 export class AuthModule {}
