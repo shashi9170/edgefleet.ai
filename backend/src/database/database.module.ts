@@ -1,6 +1,7 @@
 import { Module, Global } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ConfigService } from "@nestjs/config";
+import { User, UserSchema } from "./schemas/user.schema";
 
 @Global()
 @Module({
@@ -8,13 +9,13 @@ import { ConfigService } from "@nestjs/config";
         MongooseModule.forRootAsync({
             inject: [ConfigService],
             useFactory: async (configService: ConfigService) => ({
-                uri: configService.get<string>('database.uri'),
+                uri: configService.get<string>('database.mongoUri'),
                 dbName: 'edgefleet',
             }),
         }),
 
         MongooseModule.forFeature([
-            
+            { name: User.name, schema: UserSchema },
         ]),
     ],
     exports: [MongooseModule],
