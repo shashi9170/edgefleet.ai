@@ -2,6 +2,9 @@ import { Module, Global } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ConfigService } from "@nestjs/config";
 import { User, UserSchema } from "./schemas/user.schema";
+import { Project, ProjectSchema } from "./schemas/project.schema";
+import { RefreshToken, RefreshTokenSchema } from "./schemas/token.schema";
+
 
 @Global()
 @Module({
@@ -16,6 +19,8 @@ import { User, UserSchema } from "./schemas/user.schema";
 
         MongooseModule.forFeature([
             { name: User.name, schema: UserSchema },
+            { name: Project.name, schema: ProjectSchema },
+            { name: RefreshToken.name, schema: RefreshTokenSchema }
         ]),
     ],
     exports: [MongooseModule],
