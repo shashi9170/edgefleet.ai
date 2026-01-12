@@ -5,6 +5,7 @@ import { configLoaders } from "src/config";
 import { DatabaseModule } from './database/database.module';
 import { UsersController } from './modules/users/users.controller';
 import { AuthController } from './modules/auth/auth.controller';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { AuthController } from './modules/auth/auth.controller';
 
     DatabaseModule,
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [AppController, UsersController, AuthController],
   providers: [],
 })
 export class AppModule {}
