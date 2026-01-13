@@ -1,14 +1,17 @@
-import { Controller, Post, Body, Res, UnauthorizedException, Req } from '@nestjs/common';
+import { Controller, Post, Body, Res, UnauthorizedException, Req, Get, UseGuards } from '@nestjs/common';
 import type { Response, Request } from 'express';
+import { TokenExpiredError } from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import type { RequestWithUser } from './interfaces/jwt-payload.interface';
 
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
-
 
 
 @Controller('auth')
@@ -69,39 +72,57 @@ export class AuthController {
         return { message: 'Logged in successfully' };
     }
 
+
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    async me(@Req() req: RequestWithUser) {
+        return req.user; 
+    }
+
     // ---------------- REFRESH TOKEN ----------------
     @Post('refresh')
     async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        const refreshToken = req.cookies?.Refresh;
+        const refreshToken = req.cookies?.refresh;
 
         if (!refreshToken) {
             throw new UnauthorizedException('Refresh token missing');
         }
 
-        const payload = this.jwtService.verify(refreshToken, {
-            secret: this.configService.get<string>('jwt.refresh.secret')
-        });
+        try {
+            const payload = this.jwtService.verify(refreshToken, {
+                secret: this.configService.get<string>('jwt.refresh.secret'),
+            });
+    
+            const user = await this.authService.findRefreshToken(payload.tokenId);
+            if (!user) throw new UnauthorizedException('Session expired. Please login again');
+    
+            const tokens = await this.authService.generateTokens(user);
+    
+            res.cookie('access', tokens.access_token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 10 * 60 * 1000,
+            });
+    
+            res.cookie('refresh', tokens.refresh_token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+            });
+    
+            return { message: 'Tokens refreshed successfully' };
+        } catch (error) {
+            res.clearCookie('access');
+            res.clearCookie('refresh');
 
-        const user = await this.usersService.findByEmail(payload.email);
-        if (!user) throw new UnauthorizedException('User not found');
+            if (error instanceof TokenExpiredError) {
+                throw new UnauthorizedException('Session expired. Please login again',);
+            }
 
-        const tokens = await this.authService.generateTokens(user);
-
-        res.cookie('access', tokens.access_token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 10 * 60 * 1000,
-        });
-
-        res.cookie('refresh', tokens.refresh_token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-        });
-
-        return { message: 'Tokens refreshed successfully' };
+            throw new UnauthorizedException('Invalid refresh token');
+        }
     }
 
     // ---------------- LOGOUT ----------------

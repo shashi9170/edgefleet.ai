@@ -16,6 +16,14 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  // CORS FROM CONFIG
+  app.enableCors({
+    origin: configService.get<string[]>('app.corsOrigins'),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
   // Port from .env
   const port = configService.get<number>('app.port') || 3000;
 

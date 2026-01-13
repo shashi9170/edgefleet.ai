@@ -16,6 +16,9 @@ export class RefreshToken implements IRefreshToken {
   @Prop({ required: true, unique: true, index: true, })
   token: string;
 
+  @Prop({ required: true, unique: true, index: true, })
+  tokenId: string;
+
   @Prop({ required: true, index: true, })
   expiresAt: Date;
 

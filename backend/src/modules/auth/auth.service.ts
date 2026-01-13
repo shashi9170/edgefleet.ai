@@ -1,8 +1,9 @@
 import { ConfigService } from '@nestjs/config';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { randomUUID } from 'crypto';
 
 import { UsersService } from '../users/users.service';
 import { PasswordService } from './password.service';
@@ -27,6 +28,19 @@ export class AuthService {
 
     // ---- Register ----
     async register(registerDto: RegisterDto) {
+        // Check if user already exists (by email / username)
+        const existingUser = await this.usersService.findByEmail(
+            registerDto.email,
+        );
+
+        if (existingUser) {
+            throw new ConflictException(
+            'Account already exists. Please login instead',
+            );
+        }
+
+
+
         const hashedPassword = await this.passwordService.hash(registerDto.password);
         const user = await this.usersService.create({
         ...registerDto,
@@ -52,9 +66,14 @@ export class AuthService {
     }
 
 
+    async findRefreshToken(tokenId: string){
+        return await this.refreshTokenModel.findOne({ tokenId: tokenId });
+    }
+
     // ---- Token Generation ----
     async generateTokens(user: any) {
-        const payload = { sub: user._id.toString(), email: user.email };
+        const RandomUUID = randomUUID();
+        const payload = { sub: user._id.toString(), email: user.email, tokenId: RandomUUID };
       
         const access_token = this.jwtService.sign(payload, {
             secret: this.configService.get('jwt.access.secret'),
@@ -78,7 +97,7 @@ export class AuthService {
 
         await this.refreshTokenModel.findOneAndUpdate(
             { userId: user._id },
-            { token: refresh_token, expiresAt, isRevoked: false, },
+            { token: refresh_token, tokenId: RandomUUID, expiresAt, isRevoked: false, },
             { upsert: true, new: true, }
         );
           
