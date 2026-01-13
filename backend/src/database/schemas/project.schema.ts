@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
+
 import { IProject } from '../interfaces/project.interface';
+import { ProjectStatus } from 'src/enums/project-status.enum';
 
 @Schema({
   timestamps: true,
@@ -18,6 +20,9 @@ export class Project implements IProject {
 
   @Prop({ trim: true })
   description?: string;
+
+  @Prop({ enum: Object.values(ProjectStatus), default: ProjectStatus.ACTIVE, })
+  status?: ProjectStatus;
 
   createdAt?: Date;
   updatedAt?: Date;
