@@ -93,9 +93,11 @@ export class AuthController {
                 secret: this.configService.get<string>('jwt.refresh.secret'),
             });
     
-            const user = await this.authService.findRefreshToken(payload.tokenId);
-            if (!user) throw new UnauthorizedException('Session expired. Please login again');
-    
+            const refresh_token = await this.authService.findRefreshToken(payload.tokenId);
+            if (!refresh_token) throw new UnauthorizedException('Session expired. Please login again');
+
+            const user = await this.usersService.findById(payload.sub);
+
             const tokens = await this.authService.generateTokens(user);
     
             res.cookie('access', tokens.access_token, {

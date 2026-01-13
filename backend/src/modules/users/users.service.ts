@@ -21,7 +21,11 @@ export class UsersService {
 
     // -------- FIND BY EMAIL (NO PASSWORD) --------
     async findByEmail(email: string): Promise<User | null> {
-        return this.userModel.findOne({ email }).exec();
+        const user = this.userModel.findOne({ email }).exec();
+
+        if (!user) throw new NotFoundException('User not found');
+        
+        return user;
     }
 
     // -------- FIND BY EMAIL (WITH PASSWORD) --------
@@ -32,7 +36,7 @@ export class UsersService {
     // -------- FIND BY ID --------
     async findById(id: string): Promise<User> {
         const user = await this.userModel.findById(id).exec();
-        
+
         if (!user) throw new NotFoundException('User not found');
         
         return user;

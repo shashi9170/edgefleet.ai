@@ -72,29 +72,28 @@ export class AuthService {
 
     // ---- Token Generation ----
     async generateTokens(user: any) {
+
         const RandomUUID = randomUUID();
-        const payload = { sub: user._id.toString(), email: user.email, tokenId: RandomUUID };
+        const payload = { sub: user.id.toString(), email: user.email, tokenId: RandomUUID };
       
         const access_token = this.jwtService.sign(payload, {
             secret: this.configService.get('jwt.access.secret'),
-            expiresIn: this.configService.get('jwt.access.signOptions.expiresIn'),
+            expiresIn: this.configService.get<number>('jwt.access.signOptions.expiresIn'),
             algorithm: this.configService.get('jwt.access.signOptions.algorithm'),
         });
       
         const refresh_token = this.jwtService.sign(payload, {
             secret: this.configService.get('jwt.refresh.secret'),
-            expiresIn: this.configService.get('jwt.refresh.signOptions.expiresIn'),
+            expiresIn: this.configService.get<number>('jwt.refresh.signOptions.expiresIn'),
             algorithm: this.configService.get('jwt.refresh.signOptions.algorithm'),
         });
 
 
-        // Calculate refresh token expiry date
-        const refreshExpiresIn = this.configService.get<string>('jwt.refresh.signOptions.expiresIn', '30d');
-          
-        const expiresAt = new Date(
-            Date.now() + this.parseExpiresIn(refreshExpiresIn),
-        );
+        // // Calculate refresh token expiry date
+        const refreshExpiresIn = this.configService.getOrThrow<number>('jwt.refresh.signOptions.expiresIn');
 
+        const expiresAt = new Date(Date.now() + refreshExpiresIn * 1000);
+      
         await this.refreshTokenModel.findOneAndUpdate(
             { userId: user._id },
             { token: refresh_token, tokenId: RandomUUID, expiresAt, isRevoked: false, },
@@ -103,41 +102,5 @@ export class AuthService {
           
 
         return { access_token, refresh_token };
-    }  
-    
-    
-    private parseExpiresIn(expiresIn: string | number): number {
-        // number → seconds
-        if (typeof expiresIn === 'number') {
-          return expiresIn * 1000;
-        }
-      
-        const value = expiresIn.trim();
-      
-        // numeric string → seconds
-        if (/^\d+$/.test(value)) {
-          return Number(value) * 1000;
-        }
-      
-        // string with unit
-        const match = value.match(/^(\d+)(s|m|h|d)$/);
-      
-        if (!match) {
-          throw new Error(
-            `Invalid expiresIn format: "${expiresIn}". Use formats like "15m", "1h", "7d"`,
-          );
-        }
-      
-        const amount = Number(match[1]);
-        const unit = match[2];
-      
-        const multipliers = {
-          s: 1000,
-          m: 60 * 1000,
-          h: 60 * 60 * 1000,
-          d: 24 * 60 * 60 * 1000,
-        };
-      
-        return amount * multipliers[unit];
     }      
 }
