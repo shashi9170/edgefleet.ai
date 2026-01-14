@@ -77,7 +77,7 @@ Core responsibilities:
 
 ---
 
-## 📂 Project Structure (recommended layout)
+## 📂 Project Structure
 
 Top-level directories:
 - backend: NestJS application source, modules (auth, users, projects), DTOs, guards, app bootstrap
@@ -125,7 +125,7 @@ Notes:
 
 ---
 
-## 🧾 Environment Variables (recommended keys)
+## 🧾 Environment Variables 
 
 Backend environment variables to configure (examples):
 - PORT — port where NestJS will run (e.g., 4000)
@@ -150,8 +150,6 @@ Authentication flow overview:
 - Login: user posts credentials; backend verifies credentials and issues a short-lived access token (JWT). Backend also issues a refresh token for long-lived sessions; the recommended approach is to set the refresh token as an httpOnly, secure cookie.
 - Protected requests: frontend attaches access token to Authorization header. Backend uses JwtAuthGuard (Passport-JWT strategy) to validate tokens.
 - Authorization: each project document includes a userId; backend checks ownership in controllers/services to ensure users only access their own resources.
-
-Recommended token handling:
 - Keep access tokens in memory or lightweight client state for Authorization header use.
 - Keep refresh tokens in httpOnly secure cookies to prevent JavaScript access and mitigate XSS risk.
 - Implement a server-side refresh endpoint that issues a new access token when a valid refresh cookie is presented.
@@ -165,7 +163,7 @@ Recommended token handling:
 - If the refresh succeeds, the server issues a new access token (and optionally rotates the refresh cookie). The client should update its stored access token and retry the original request.
 - If the refresh fails, the client should clear any auth state and redirect the user to the login screen.
 
-Operational suggestions:
+Operational:
 - Avoid sending refresh tokens in localStorage/sessionStorage.
 - Use an API client strategy to serialize refresh attempts so multiple concurrent calls do not produce multiple refresh requests (mutex or queue pattern).
 - Return clear HTTP error codes (401 for unauthorized, 403 for forbidden) and descriptive messages for client handling.
