@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AppService } from './app.service';
-import { LocationDto } from './location.dto';
+import { LocationDto, CountDto } from './location.dto';
 
 @Controller()
 export class AppController {
