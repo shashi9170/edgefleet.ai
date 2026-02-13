@@ -23,7 +23,7 @@ export class AppController {
         return this.appService.printLocation(dto.lat, dto.lng);
     }
 
-    @Post("/count)
+    @Post("/count")
     printCount(@Body() dto: CountDto) {
         return this.appService.printCount(dto.cnt);
     }
