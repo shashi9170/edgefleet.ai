@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AppService {
     getHealth() {
+        console.log("hiii");
         return {
             status: 'ok',
             timestamp: new Date().toISOString(),
@@ -14,5 +15,10 @@ export class AppService {
             name: 'EdgeFleet API',
             version: '1.0.0',
         };
+    }
+
+    printLocation(lat, log){
+        console.log(`lat ${lat} , log ${log}`);
+        return { success: true }
     }
 }
