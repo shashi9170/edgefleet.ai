@@ -24,7 +24,7 @@ export class AppController {
     }
 
     @Post("/count)
-    printCount(@Body() dto) {
+    printCount(@Body() dto: CountDto) {
         return this.appService.printCount(dto.cnt);
     }
 }
