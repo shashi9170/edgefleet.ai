@@ -21,4 +21,9 @@ export class AppService {
         console.log(`lat ${lat} , log ${log}`);
         return { success: true }
     }
+
+     printCount(cnt){
+        console.log(`count -- ${cnt} `);
+        return { success: true }
+    }
 }
