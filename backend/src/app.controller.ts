@@ -1,5 +1,6 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AppService } from './app.service';
+import { LocationDto } from './location.dto';
 
 @Controller()
 export class AppController {
@@ -18,7 +19,7 @@ export class AppController {
     }
 
     @Post()
-    printLocation(@Body() dto) {
-        return this.appService.printLocation(dto.lat, dto.log);
+    printLocation(@Body() dto:LocationDto) {
+        return this.appService.printLocation(dto.lat, dto.lng);
     }
 }
