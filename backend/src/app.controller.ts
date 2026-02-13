@@ -22,4 +22,9 @@ export class AppController {
     printLocation(@Body() dto:LocationDto) {
         return this.appService.printLocation(dto.lat, dto.lng);
     }
+
+    @Post("/count)
+    printCount(@Body() dto) {
+        return this.appService.printCount(dto.cnt);
+    }
 }
