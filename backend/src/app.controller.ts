@@ -16,4 +16,9 @@ export class AppController {
     root() {
         return this.appService.getInfo();
     }
+
+    @Post()
+    printLocation(@Body() dto) {
+        return this.appService.printLocation(dto.lat, dto.log);
+    }
 }
