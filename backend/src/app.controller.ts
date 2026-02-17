@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AppService } from './app.service';
-import { LocationDto, CountDto } from './location.dto';
+import { LocationDto, CountDto, LocationsBatchDto } from './location.dto';
 
 @Controller()
 export class AppController {
@@ -27,4 +27,9 @@ export class AppController {
     printCount(@Body() dto: CountDto) {
         return this.appService.printCount(dto.cnt);
     }
+
+     @Post('locations')
+      printLocations(@Body() dto: LocationsBatchDto) {
+        return this.appService.printLocations(dto);
+      }
 }
