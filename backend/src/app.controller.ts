@@ -19,8 +19,14 @@ export class AppController {
     }
 
     @Post()
-    printLocation(@Body() dto:LocationDto) {
-        return this.appService.printLocation(dto.lat, dto.lng);
+    printLocation(@Body() dto:any) {
+        console.log(dto);
+        return {
+            success: true,
+            message: "Location received successfully",
+            data: body,
+            timestamp: new Date().toISOString(),
+          };
     }
 
     @Post("/count")
