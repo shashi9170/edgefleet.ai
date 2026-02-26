@@ -19,8 +19,8 @@ export class AppController {
     }
 
     @Post()
-    printLocation(@Body() dto:any) {
-        console.log(dto);
+    printLocation(@Body() body:any) {
+        console.log(body);
         return {
             success: true,
             message: "Location received successfully",
